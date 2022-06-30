@@ -1,8 +1,18 @@
 import express from  "express"
+import addMiddlewear from "./setup/addMiddlewear";
+import addRoutes from "./setup/addRoutes";
+import ConfigInit from "./setup/environmentSetup";
 
 const app = express()
 
+ConfigInit()
+addMiddlewear(app)
+addRoutes(app)
+
 app.get("/" , (req,res) => res.send("Hello world!"))
+
+
+
 
 
 

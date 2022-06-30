@@ -18,3 +18,5 @@ function CheckAllVars() {
         }
     }
 }
+
+export default ConfigInit
