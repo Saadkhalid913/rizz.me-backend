@@ -17,3 +17,12 @@ model User {
   password          String        @db.VarChar(512)  @unique
   max_chat_limit    Int           @db.Integer()     @default(10) 
 }
+
+
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt   DateTime
+}
