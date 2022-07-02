@@ -16,6 +16,8 @@ model User {
   username          String        @db.VarChar(512)  @unique
   password          String        @db.VarChar(512)  @unique
   max_chat_limit    Int           @db.Integer()     @default(10) 
+  chats             Chat[]      
+  chatSenders       String[]     
 }
 
 
@@ -25,4 +27,12 @@ model Session {
   sid       String   @unique
   data      String
   expiresAt   DateTime
+}
+
+model Chat {
+  id                String        @db.VarChar(255)  @id @default(uuid())
+  text              String        @db.VarChar(2047)
+  sender            String        @db.VarChar(512)
+  recipient         User          @relation(references: [id], fields: [recipientID])
+  recipientID       String        @db.VarChar(255)
 }
