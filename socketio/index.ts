@@ -14,10 +14,23 @@ export default function SocketIOinit(app: Express) {
       }})
 
     io.on('connection', (socket) => {
+        console.log("Connected...")
         socket.on("test-event" , (...args) => {
             console.log("This is the test event")
             console.log(args)
         })
+
+        socket.on("chat-sent", (text, sender) => {
+            const chat = {
+                username: sender,
+                text: text,
+                timestamp: Date.now()
+            }
+            console.log(chat)
+
+            socket.emit("chat-recieved", chat)
+        })
+
 
 
         // socket.on("chat", async (sender, text) => {
