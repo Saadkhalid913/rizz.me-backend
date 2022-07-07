@@ -43,7 +43,7 @@ router.post("/login", async (req: express.Request<any>,res: express.Response) =>
     if (valid) {
         // @ts-ignore 
         req.session.auth = CreateJWT(user)
-        console.log(req.session)
+        console.log("---- session in route ----", req.session)
     }
     else {
         return res.status(400).send({"Message": "Incorrect password"})

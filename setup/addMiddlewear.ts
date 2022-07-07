@@ -1,6 +1,8 @@
 import express, {Express} from "express" 
 import cors from "cors"
 import session from "express-session"
+import prisma from "../db"
+import { PrismaSessionStore } from "@quixo3/prisma-session-store"
 import cookieparser from "cookie-parser"
 
 
@@ -15,16 +17,15 @@ export default (app: Express) => {
     app.use(cookieparser())
     app.use(cors({origin: origin, credentials: true}))
     app.use(session({
-        // resave: false,
-        // saveUninitialized: true,
+        resave: false,
+        saveUninitialized: true,
         name: "authToken",
-        // proxy: true,
         secret: process.env.key!,
-        // store: new PrismaSessionStore(prisma, {
-        //     checkPeriod: 2 * 60 * 1000,  //ms
-        //     dbRecordIdIsSessionId: true,
-        //     dbRecordIdFunction: undefined,
-        // }),
+        store: new PrismaSessionStore(prisma, {
+            checkPeriod: 2 * 60 * 1000,  //ms
+            dbRecordIdIsSessionId: true,
+            dbRecordIdFunction: undefined,
+        }),
 
         cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: 'none', domain: cookieDomain }
     }))
