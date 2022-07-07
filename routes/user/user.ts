@@ -61,7 +61,7 @@ router.get("/get-cookie",  async (req,res) => {
         sameSite: "none",
         secure: true,
         httpOnly: true,
-        domain: process.env.cookie_domain
+        // domain: process.env.cookie_domain
     })
     res.send("Cookie Sent")
 })
