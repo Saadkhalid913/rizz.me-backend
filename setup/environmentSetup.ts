@@ -12,7 +12,6 @@ function CheckAllVars() {
         "key",
         "cookie_domain",
         "client_origin"
-
     ]
 
     for (let variable of EnvrionmentVariables) {
