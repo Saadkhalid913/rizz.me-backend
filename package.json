@@ -34,7 +34,7 @@
   "scripts": {
     "test": "jest",
     "dev": "ts-node-dev --respawn index.ts",
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node build/index.js"
   },
   "author": "",
