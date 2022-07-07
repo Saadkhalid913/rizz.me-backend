@@ -55,5 +55,22 @@ router.get("/test", auth, async (req,res) => {
     res.send({"message": "you made it to the logged in route!", creds: req._user})
 })
 
+router.get("/get-cookie",  async (req,res) => {
+    res.cookie("testCookie", {test: "hello"}, {
+        maxAge: 1000 * 60 * 60 * 24,
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+        domain: process.env.cookie_domain
+    })
+    res.send("Cookie Sent")
+})
+
+router.get("/test-cookie",  async (req,res) => {
+    const cookies = req.cookies;
+    console.log("Cookies ----------- \n", cookies)
+    res.send(cookies)
+})
+
 
 export default router 
