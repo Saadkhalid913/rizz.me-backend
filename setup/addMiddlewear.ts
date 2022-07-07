@@ -6,11 +6,16 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store"
 import cookieparser from "cookie-parser"
 
 
+const origin = (process.env.TS_NODE_DEV) ? "http://localhost:3001" : process.env.client_origin
+const cookieDomain = process.env.cookie_domain
+
 export default (app: Express) => {
+    console.log("Origin: ", origin)
+    console.log("Cookie Domain: ", cookieDomain)
     app.set("trust proxy", 1)
     app.use(express.json())
     app.use(cookieparser())
-    app.use(cors({origin: (process.env.TS_NODE_DEV) ? "http://localhost:3001" : process.env.client_origin, credentials: true}))
+    app.use(cors({origin: origin, credentials: true}))
     app.use(session({
         resave: false,
         saveUninitialized: true,
@@ -23,7 +28,7 @@ export default (app: Express) => {
             dbRecordIdFunction: undefined,
         }),
 
-        cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: 'none', domain: process.env.cookie_domain }
+        cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: 'none', domain: cookieDomain }
     }))
     app.enable('trust proxy')
 
