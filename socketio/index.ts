@@ -28,20 +28,8 @@ export default function SocketIOinit(app: Express) {
             }
             console.log(chat)
 
-            socket.emit("chat-recieved", chat)
+            io.emit("chat-recieved", chat)
         })
-
-
-
-        // socket.on("chat", async (sender, text) => {
-        //     const ChatSendResponse = await prisma.chat.create({
-        //         data: {
-        //             sender,
-        //             text,
-        //             recipient:
-        //         }
-        //     })  
-        // })
     });
 
     return server 
