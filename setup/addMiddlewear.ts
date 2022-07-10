@@ -6,15 +6,14 @@ import { PrismaSessionStore } from "@quixo3/prisma-session-store"
 import cookieparser from "cookie-parser"
 
 
-const origin = (process.env.TS_NODE_DEV) ? "http://localhost:3001" : process.env.client_origin
 
 export default (app: Express) => {
-    console.log("Origin: ", origin)
+    console.log("Origin: ", process.env.client_origin)
     console.log("Cookie Domain: ", process.env.cookie_domain)
     app.set("trust proxy", 1)
     app.use(express.json())
     app.use(cookieparser())
-    app.use(cors({origin: origin, credentials: true}))
+    app.use(cors({origin: process.env.client_origin, credentials: true}))
     app.use(session({
         resave: false,
         saveUninitialized: true,
