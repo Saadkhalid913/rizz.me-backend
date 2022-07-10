@@ -8,8 +8,8 @@ import prisma from "../db"
 export default function SocketIOinit(app: Express) {        
 
     const server = http.createServer(app);
-    const io = new Server(server,{cors: {
-        origin: "http://localhost:3001",
+    const io = new Server(server,{ cors: {
+        origin: process.env.client_origin,
         methods: ["GET", "POST"]
       }})
 
