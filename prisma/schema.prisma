@@ -17,10 +17,7 @@ model User {
   password          String        @db.VarChar(512)  @unique
   max_chat_limit    Int           @db.Integer()     @default(10) 
   chats             Chat[]      
-  chatSenders       String[]     
 }
-
-
 
 model Session {
   id        String   @id
@@ -29,10 +26,29 @@ model Session {
   expiresAt   DateTime
 }
 
-model Chat {
+model ChatMessage {
   id                String        @db.VarChar(255)  @id @default(uuid())
   text              String        @db.VarChar(2047)
   sender            String        @db.VarChar(512)
-  recipient         User          @relation(references: [id], fields: [recipientID])
-  recipientID       String        @db.VarChar(255)
+  recipient         String        @db.VarChar(512)
+  conversation      Chat          @relation(references: [id], fields: [conversation_id])
+  conversation_id   String        @db.VarChar(255)
+  timestamp         DateTime      @default(now())
+}
+
+model Chat {
+  id                String        @db.VarChar(255)  @id @default(uuid()) // Chat ID 
+
+  // Chat Owner info
+  user_id           User          @relation(references: [id], fields: [non_anon_id]) 
+  non_anon_id       String        @db.VarChar(255)
+  non_anon_username String        @db.VarChar(255)
+
+  // Anon user info 
+  anon_id           String        @db.VarChar(255) @default(uuid()) @unique
+  anon_username     String        @db.VarChar(255)
+  anon_credentials  String        @db.VarChar(511) // Hashed pw goes here 
+
+  // Chat messages go here
+  messages          ChatMessage[]
 }

@@ -24,7 +24,6 @@ router.post("/", async (req: express.Request<any>,res: express.Response) => {
         
         // @ts-ignore
         req.session.auth = JWT 
-        console.log(req.session)
         res.send({"message": "new user created"})
     } 
     catch(err) {
@@ -35,8 +34,6 @@ router.post("/", async (req: express.Request<any>,res: express.Response) => {
 
 router.post("/login", async (req: express.Request<any>,res: express.Response) => {
     const { username, password } = req.body
-
-
     const user = await prisma.user.findUnique({where: {username}})
     if (!user) return res.status(401).send({"message": "no user found"})
     const valid = await bcrypt.compare(password, user.password)

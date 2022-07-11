@@ -1,5 +1,5 @@
 import express, { Express } from "express"
-import UserRouter from "../routes/user/user"
+import UserRouter from "../routes/user"
 
 
 export default (app: Express) => {
