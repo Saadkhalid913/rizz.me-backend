@@ -8,8 +8,6 @@ import cookieparser from "cookie-parser"
 
 
 export default (app: Express) => {
-    console.log("Origin: ", process.env.client_origin)
-    console.log("Cookie Domain: ", process.env.cookie_domain)
     app.set("trust proxy", 1)
     app.use(express.json())
     app.use(cookieparser())

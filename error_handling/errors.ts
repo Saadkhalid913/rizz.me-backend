@@ -13,11 +13,11 @@ export class BaseError extends Error {
 interface HTTPErrorInfo {
     HTTPErrorCode: number;
     endUserMessage: string;
-    environment: string        
+    environment?: string        
     routePath: string;
     resource: any;
     userID?: string;
-    log: boolean;
+    log?: boolean;
 }
 
 export class HTTPError extends BaseError {
@@ -27,7 +27,12 @@ export class HTTPError extends BaseError {
 
     constructor(message: string, info: HTTPErrorInfo) {
         super(message)
+
+        info.environment = process.env.NODE_ENV;
+        info.log = (info.log) ? true : false;
         this.info = info
+
+
     }
 }
 

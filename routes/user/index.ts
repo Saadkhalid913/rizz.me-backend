@@ -27,7 +27,7 @@ router.post("/", async (req: express.Request<any>,res: express.Response) => {
         res.send({"message": "new user created"})
     } 
     catch(err) {
-        console.log("error")
+        res.status(402).send("User Already Exists")
     }
 
 })

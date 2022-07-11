@@ -17,11 +17,14 @@ app.get("/" , (req,res) => res.send("Hello world!"))
 
 const PORT = process.env.PORT || 3000;
 
+
+let server
+
 if (!IsTesting()) { 
-    const server = SocketIOinit(app) 
+    server = SocketIOinit(app) 
     server.listen(PORT, () =>  {console.log("Listening on port #" + PORT)}) 
 }
 else {
-    app.listen(PORT, () =>  {console.log("Listening on port #" + PORT)}) 
+    server = app.listen(PORT) 
 }
-export default app
+module.exports = server
