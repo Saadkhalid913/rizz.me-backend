@@ -1,8 +1,10 @@
 import { User } from "@prisma/client";
-
-declare namespace Express {
-    export type Request = {
+declare module 'express-serve-static-core' {
+    interface Request {
         _user: User
         session: { auth: string }
+    }
+    interface Response {
+        _user: User
     }
 }

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import prisma from "../../db"
 import { CreateJWT } from "../../utils"
 import auth from "../../middlewear/auth"
+import { HTTPError } from "../../error_handling/errors"
 
 const router = express.Router()
 
@@ -22,12 +23,16 @@ router.post("/", async (req: express.Request<any>,res: express.Response) => {
         })
         const JWT = CreateJWT(NewUser)
         
-        // @ts-ignore
         req.session.auth = JWT 
         res.send({"message": "new user created"})
     } 
     catch(err) {
-        res.status(402).send("User Already Exists")
+        throw new HTTPError("Could not create a profile", {
+            HTTPErrorCode: 401,
+            endUserMessage: "Could not create a profile" + username,
+            routePath: "/user",
+            resource: {req, err}
+        })
     }
 
 })

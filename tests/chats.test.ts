@@ -15,7 +15,6 @@ describe("/api/user", () => {
     it("Should run", async () => {
         const response = await request(server).post("/api/user").send({ username: test_username, password: test_password})
         expect(response.body).toBeDefined()
-
     })
 })
 
