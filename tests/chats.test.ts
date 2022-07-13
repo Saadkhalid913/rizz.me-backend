@@ -22,12 +22,11 @@ const test_password = "4^v3s^2h*@c3^c52ds25AvSwrcaWRH424B51xF42W@#"
 
 describe("/api/user", () => {
     it("Should run", async () => {
-        expect(process.env.test_var).toBe("test")
-        // const response = await request(server).post("/api/user")
-        // const response = await request(server).post("/")
-                // .set('Content-Type', 'application/json')
-                // .send(JSON.stringify({ username: test_username, password: test_password}))
-        // expect(response.body).toBeDefined()
+
+        const response = await request(server).post("/api/user")
+                .set('Content-Type', 'application/json')
+                .send(JSON.stringify({ username: test_username, password: test_password}))
+        expect(response.body).toBeDefined()
     })
 })
 

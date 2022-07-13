@@ -17,7 +17,6 @@ app.use(errorMiddlewear)
 
 
 app.get("/" , (req,res) => res.send("Hello world!"))
-app.post("/" , (req,res) => {console.log(req.body); res.send("hello")})
 
 
 const PORT = process.env.PORT || 3000;
