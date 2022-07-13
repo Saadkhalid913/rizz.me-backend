@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction, RequestHandler, Errback } from "express";
+import { IsTesting } from "../utils";
 import { HTTPError } from "./errors";
 
 
 
-const authMiddlewear = (handler: RequestHandler): RequestHandler => {
-    return (req: Request,res: Response,next: NextFunction) => {
+export const handlerWrapper = (handler: RequestHandler): RequestHandler => {
+    return async (req: Request,res: Response,next: NextFunction) => {
         try {
-            handler(req,res,next)
+            await handler(req,res,next)
         }
         catch (err) {
             next(err)
@@ -15,7 +16,7 @@ const authMiddlewear = (handler: RequestHandler): RequestHandler => {
 }
 
 export const errorMiddlewear = (err: HTTPError, req: Request, res: Response, next: NextFunction) => {
-    const { HTTPErrorCode, environment, routePath, endUserMessage } = err.info
-    console.log(`${HTTPErrorCode} ERROR AT ${routePath} -- "${endUserMessage} ENV: ${environment}"`)
+    const { HTTPErrorCode, environment, routePath, endUserMessage } = err.info;
+    (!IsTesting()) && console.log(`${HTTPErrorCode} ERROR AT ${routePath} -- "${endUserMessage} ENV: ${environment}"`)
     res.status(HTTPErrorCode).send({error: endUserMessage})
 }

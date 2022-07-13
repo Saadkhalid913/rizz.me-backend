@@ -4,15 +4,20 @@ import addRoutes from "./setup/addRoutes";
 import ConfigInit from "./setup/environmentSetup";
 import { IsTesting } from "./utils";
 import SocketIOinit from "./socketio";
-import e from "express";
+import { errorMiddlewear } from "./error_handling/errorMiddlewear";
+
+
 
 const app = express()
 
 ConfigInit()
 addMiddlewear(app)
 addRoutes(app)
+app.use(errorMiddlewear)
+
 
 app.get("/" , (req,res) => res.send("Hello world!"))
+app.post("/" , (req,res) => {console.log(req.body); res.send("hello")})
 
 
 const PORT = process.env.PORT || 3000;
