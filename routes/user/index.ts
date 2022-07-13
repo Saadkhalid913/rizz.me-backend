@@ -1,7 +1,7 @@
 import express from "express"
 import bcrypt from "bcrypt"
 import prisma from "../../db"
-import { CreateJWT } from "../../utils"
+import { CreateJWT, IsTesting } from "../../utils"
 import auth from "../../middlewear/auth"
 import { HTTPError } from "../../error_handling/errors"
 import { missingFieldError } from "../../error_handling/throwers"
@@ -9,7 +9,7 @@ import { handlerWrapper } from "../../error_handling/errorMiddlewear"
 
 const router = express.Router()
 
-const SignupHandler = async (req: express.Request,res: express.Response) => {
+const SignupHandler = async (req: express.Request, res: express.Response) => {
     const { username, password } = req.body
 
     if (!username) missingFieldError("username", req, "/user")
@@ -41,19 +41,84 @@ const SignupHandler = async (req: express.Request,res: express.Response) => {
 }
 
 
-const LoginHandler = async (req: express.Request<any>,res: express.Response) => {
+const LoginHandler = async (req: express.Request,res: express.Response) => {
+
     const { username, password } = req.body
+
+    if (!username) missingFieldError("username", req, "/user")
+    if (!password) missingFieldError("password", req, "/user")
+
     const user = await prisma.user.findUnique({where: {username}})
-    if (!user) return res.status(401).send({"message": "no user found"})
+
+    if (!user) {
+        throw new HTTPError("Could not find a user with that username", {
+            HTTPErrorCode: 401,
+            endUserMessage: "Could not find a user with that username",
+            routePath: "/user",
+            resource: req
+        })
+    }
+
     const valid = await bcrypt.compare(password, user.password)
     if (valid) {
+        const JWT = CreateJWT(user)
         // @ts-ignore 
-        req.session.auth = CreateJWT(user)
-        console.log("---- session in route ----", req.session)
+        req.session.auth = JWT 
+        if (IsTesting()) res.set("auth-token", JWT)
+
+        res.status(200).send({success: true})
     }
+
     else {
-        return res.status(400).send({"Message": "Incorrect password"})
+        throw new HTTPError("Could not create a profile", {
+            HTTPErrorCode: 401,
+            endUserMessage: "Incorrect Password",
+            routePath: "/user",
+            resource: req
+        })
     }
+}
+
+
+async function DeleteUser(username: string) {
+    const chat_delete_response = await prisma.chat.deleteMany({where: {
+        non_anon_username: username
+    }})
+
+    const user_delete_response = await prisma.user.delete({where: {
+        username: username
+    }})
+
+    return user_delete_response
+}
+
+const DeleteProfileHandler = async (req: express.Request, res: express.Response) => {
+    console.log("Deleting user")
+    const { username, password } = req.body;
+    
+    if (!username) missingFieldError("username", req, "/user")
+    if (!password) missingFieldError("password", req, "/user")
+    
+    const response = await DeleteUser(username)
+
+    if (!response.id) {
+        throw new HTTPError("There was an error deleting your profile", {
+            HTTPErrorCode: 503,
+            endUserMessage: "There was an error deleting your profile",
+            routePath: "/user",
+            resource: req
+        })
+    }
+    
+    const id = response.id;
+    const deletedUsername = response.username;
+
+    return res.status(200).send({
+        username: deletedUsername,
+        id
+    })
+
+
 }
 
 
@@ -61,5 +126,6 @@ const LoginHandler = async (req: express.Request<any>,res: express.Response) => 
 
 router.post("/", handlerWrapper(SignupHandler))
 router.post("/login", handlerWrapper(LoginHandler))
+router.delete("/", handlerWrapper(DeleteProfileHandler))
 
 export default router 

@@ -35,7 +35,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "dev": "ts-node-dev --respawn index.ts",
     "build": "npx prisma generate && tsc",
     "start": "node build/index.js"
