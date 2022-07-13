@@ -26,7 +26,7 @@ describe("/api/chats/create/:username", () => {
                 .send({ username: test_username, password: test_password})
         return response 
     }
-    
+
     it("Should create a new chat with the user", async () => {
         const user_response = await createProfile()
         expect(user_response.body).toBeDefined()
@@ -41,7 +41,6 @@ describe("/api/chats/create/:username", () => {
         expect(response.body.JWT).toBeDefined
     })
 
-
     it("Should delete the user's account", async () => {
         const response = await request(server).delete("/api/user")
             .set('Content-Type', 'application/json')
@@ -51,8 +50,6 @@ describe("/api/chats/create/:username", () => {
         expect(response.body.id).toBeDefined()
         expect(response.body.username).toBeDefined()
     })
-
-
 })
 
 
