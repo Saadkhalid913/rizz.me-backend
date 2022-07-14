@@ -93,7 +93,6 @@ async function DeleteUser(username: string) {
 }
 
 const DeleteProfileHandler = async (req: express.Request, res: express.Response) => {
-    console.log("Deleting user")
     const { username, password } = req.body;
     
     if (!username) missingFieldError("username", req, "/user")
@@ -117,8 +116,27 @@ const DeleteProfileHandler = async (req: express.Request, res: express.Response)
         username: deletedUsername,
         id
     })
+}
 
+const GetProfileInfoHandler = async (req: express.Request, res: express.Response) => {
+    // @ts-ignore
+    const { username } = req._user;
 
+    const response = await prisma.user.findUnique({where: { username }})
+
+    if (!response?.id) {
+        throw new HTTPError("Could not find a user with that username", {
+            HTTPErrorCode: 401,
+            endUserMessage: "Could not find a user with that username",
+            routePath: "/user/me",
+            resource: req
+        })
+    }
+
+    return res.status(200).send({
+        username: response.username,
+        max_chat_limit: response.max_chat_limit
+    })
 }
 
 
@@ -127,5 +145,6 @@ const DeleteProfileHandler = async (req: express.Request, res: express.Response)
 router.post("/", handlerWrapper(SignupHandler))
 router.post("/login", handlerWrapper(LoginHandler))
 router.delete("/", handlerWrapper(DeleteProfileHandler))
+router.get("/me", auth, handlerWrapper(GetProfileInfoHandler))
 
 export default router 
