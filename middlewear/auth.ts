@@ -6,7 +6,8 @@ export default async function(req: express.Request,res: express.Response, next: 
 
     // @ts-ignore
     JWT = req.session.auth
-    if (!JWT && process.env.NODE_DEV == "test") JWT = req.headers["auth"] as string
+
+    if ((!JWT) && (process.env.NODE_ENV == "test")) JWT = req.headers["auth-token"] as string
 
     if (!JWT) return res.status(403).send({"message": "no authentication passed"})
     
@@ -18,6 +19,6 @@ export default async function(req: express.Request,res: express.Response, next: 
         next()
     }
     catch(err){
-        res.status(401).send({"message": "no authentication passed"})
+        res.status(401).send({"message": "Invalid credentials"})
     }
 }

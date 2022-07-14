@@ -40,6 +40,19 @@ describe("/api/user", () => {
         expect(response.headers["auth-token"]).toBeDefined()
     })
 
+    it("Should get user profile info", async () => {
+        const user_response = await request(server).post("/api/user/login")
+                .set('Content-Type', 'application/json')
+                .send({ username: test_username, password: test_password})
+
+        const auth_token = user_response.headers["auth-token"]
+        const response = await request(server).get("/api/user/me")
+                .set('auth-token', auth_token)
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toBeDefined()
+        expect(response.body.username).toBeDefined()
+    })
+
     it("Should delete the user's account", async () => {
         await createProfile()
         const response = await request(server).delete("/api/user")
