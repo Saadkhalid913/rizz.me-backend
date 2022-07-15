@@ -2,20 +2,17 @@ import express from "express"
 import prisma from "../../db"
 import { HTTPError } from "../../error_handling/errors";
 import bcrypt from "bcrypt"
-
+import auth from "../../middlewear/auth"
 import { GenerateRandomUsername, GenerateRandomCredentials } from "./utils";
 import { CreateJWT } from "../../utils";
+import { ChatCredentials } from "../../main";
+import { handlerWrapper } from "../../error_handling/errorMiddlewear";
+import { createJsxClosingElement } from "typescript";
 
 const router = express.Router()
 
 
-type ChatCredentials = {
-    anon_username: string
-    anon_id: string,
-    chat_id: string
-}
-
-router.post("/create/:username", async (req, res) => {
+const CreateChatHandler = async (req: express.Request, res: express.Response) => {
     const { username } = req.params;
 
     const user = await prisma.user.findUnique({ where: { username } })
@@ -47,6 +44,7 @@ router.post("/create/:username", async (req, res) => {
 
         const chatCredentials: ChatCredentials = {
             anon_username,
+            non_anon_id: user.id,
             anon_id: NewChat.anon_id,
             chat_id: NewChat.id
         }
@@ -57,7 +55,8 @@ router.post("/create/:username", async (req, res) => {
             data: {
                 username: anon_username,
                 password: anon_password,
-                JWT
+                JWT,
+                chat_id: (process.env.NODE_ENV == "test") ? NewChat.id : undefined
             }
         })
     }
@@ -70,7 +69,49 @@ router.post("/create/:username", async (req, res) => {
             resource: { req, err }
         })
     }
-})
+}
+
+
+const GetCredentialsWrapper = async (req:express.Request, res: express.Response) => {
+    const {chatID} = req.params
+    const userID = req._user.id
+
+    try {
+        const chat = await prisma.chat.findUnique({where: {id: chatID}})
+        if (chat == null) {
+            throw new HTTPError("No chat with that id", {
+                HTTPErrorCode: 401,
+                endUserMessage: "No chat with that id",
+                routePath: "/chats/getcredentials/:chatID",
+                resource: req
+            })
+        }
+
+        const { id: chat_id, non_anon_id, anon_id, anon_username } = chat
+
+        const chatCredentials: ChatCredentials = {
+            chat_id,
+            non_anon_id,
+            anon_id,
+            anon_username
+        }
+
+        const JWT = CreateJWT(chatCredentials)
+        return res.status(200).send({JWT})
+    }
+    catch (err) {
+        throw new HTTPError("There was an error", {
+            HTTPErrorCode: 504,
+            endUserMessage: "There was an error",
+            routePath: "/chats/getcredentials/:chatID",
+            resource: { req, err }
+        })
+    }
+
+}
+
+router.post("/create/:username", handlerWrapper(CreateChatHandler))
+router.get("/getcredentials/:chatID", auth, handlerWrapper(GetCredentialsWrapper))
 
 
 export default router

@@ -2,7 +2,14 @@ import { Server } from "socket.io"
 import { Express } from "express"
 import http from "http"
 import prisma from "../db"
+import { ChatCredentials } from "../main"
 
+import * as jwt from "jsonwebtoken"
+
+interface Chat {
+    JWT: string;
+    data: string;
+}
 
 
 export default function SocketIOinit(app: Express) {        
@@ -20,15 +27,15 @@ export default function SocketIOinit(app: Express) {
             console.log(args)
         })
 
-        socket.on("chat-sent", (text, sender) => {
-            const chat = {
-                username: sender,
-                text: text,
-                timestamp: Date.now()
+        socket.on("chat-sent", (chat: Chat) => {
+            const {JWT, data} = chat            
+            try {
+                const payload = jwt.verify(JWT, process.env.key!) as ChatCredentials
+                console.log(payload, data)
             }
-            console.log(chat)
-
-            io.emit("chat-recieved", chat)
+            catch(err) {
+                console.log(err)
+            }
         })
     });
 

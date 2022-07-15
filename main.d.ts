@@ -8,3 +8,10 @@ declare module 'express-serve-static-core' {
         _user: User
     }
 }
+
+export type ChatCredentials = {
+    anon_username: string
+    anon_id: string,
+    chat_id: string
+    non_anon_id: string,
+}
