@@ -144,7 +144,40 @@ const GetAnonCredentialsWrapper = async (req: express.Request, res: express.Resp
     return res.status(200).send({JWT})
 }
 
+
+
+const GetChatsHandler = async (req: express.Request, res: express.Response) =>  {
+    // @ts-ignore 
+    const { id } = req._user
+
+    try {
+        const chats = await prisma.chat.findMany({
+            where: {
+                non_anon_id: id
+            },
+            select: {
+                anon_credentials: false,
+                non_anon_username: true,
+                anon_username: true,
+                messages: true
+            }
+        })
+
+        return res.status(200).send(chats)
+    }
+    catch(err) {
+        throw new HTTPError("There was an error loading your chats", {
+            HTTPErrorCode: 503,
+            endUserMessage: "there was an error loading your chats",
+            routePath: "/chats",
+            resource: {req, err}
+        })
+    }
+
+}
 router.post("/create/:username", handlerWrapper(CreateChatHandler))
+router.get("/", auth, handlerWrapper(GetChatsHandler))
+
 router.get("/getcredentials/:chatID", auth, handlerWrapper(GetCredentialsWrapper))
 router.post("/getcredentials/anon",  handlerWrapper(GetAnonCredentialsWrapper))
 

@@ -89,7 +89,6 @@ describe("/api/chats/create/:username", () => {
     })
 
     it("Should get anonymous credentials", async () => {
-
         await createProfile()
         const user_response = await request(server).post("/api/user/login")
                 .set('Content-Type', 'application/json')
@@ -118,6 +117,39 @@ describe("/api/chats/create/:username", () => {
         expect(response.statusCode).toBe(200)
         expect(response.body).toBeDefined()
         expect(response.body.JWT).toBeDefined()
+
+        const delete_profile_response = await deleteProfile()
+        expect(delete_profile_response.statusCode).toBe(200)
+        expect(delete_profile_response.body.id).toBeDefined()
+        expect(delete_profile_response.body.username).toBeDefined()
+    })
+
+    it("Should create 3 chats and retrieve them", async () => {
+        await createProfile()
+        const user_response = await request(server).post("/api/user/login")
+                .set('Content-Type', 'application/json')
+                .send({ username: test_username, password: test_password})
+
+        const auth_token = user_response.headers["auth-token"]
+
+        const ChatCreationCalls = []
+
+        for (let i = 0; i < 3; i++) {
+            ChatCreationCalls.push(
+                request(server).post("/api/chats/create/" + test_username)
+                    .set('Content-Type', 'application/json')
+                    .send()
+            )
+        }
+
+        await Promise.all(ChatCreationCalls)
+
+        const response = await request(server).get("/api/chats")
+        .set('Content-Type', 'application/json')
+        .set('auth-token', auth_token)
+        
+        expect(response.statusCode).toBe(200)
+        expect(response.body.length).toEqual(3)
 
         const delete_profile_response = await deleteProfile()
         expect(delete_profile_response.statusCode).toBe(200)
