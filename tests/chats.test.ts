@@ -88,6 +88,43 @@ describe("/api/chats/create/:username", () => {
         expect(delete_profile_response.body.username).toBeDefined()
     })
 
+    it("Should get anonymous credentials", async () => {
+
+        await createProfile()
+        const user_response = await request(server).post("/api/user/login")
+                .set('Content-Type', 'application/json')
+                .send({ username: test_username, password: test_password})
+
+        const auth_token = user_response.headers["auth-token"]
+
+
+        const chat_response = await request(server).post("/api/chats/create/" + test_username)
+            .set('Content-Type', 'application/json')
+            .send()
+
+        expect(chat_response.statusCode).toBe(200)
+        expect(chat_response.body).toBeDefined()
+        expect(chat_response.body.data.username).toBeDefined()
+        expect(chat_response.body.data.password).toBeDefined()
+        expect(chat_response.body.data.JWT).toBeDefined()
+        expect(chat_response.body.data.chat_id).toBeDefined()
+
+        const { username, password } = chat_response.body.data
+        const response = await request(server).post("/api/chats/getcredentials/anon")
+            .set('Content-Type', 'application/json')
+            .send({username, password, non_anon_username: test_username})
+        
+
+        expect(response.statusCode).toBe(200)
+        expect(response.body).toBeDefined()
+        expect(response.body.JWT).toBeDefined()
+
+        const delete_profile_response = await deleteProfile()
+        expect(delete_profile_response.statusCode).toBe(200)
+        expect(delete_profile_response.body.id).toBeDefined()
+        expect(delete_profile_response.body.username).toBeDefined()
+    })
+
 })
 
 

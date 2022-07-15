@@ -7,7 +7,7 @@ import { GenerateRandomUsername, GenerateRandomCredentials } from "./utils";
 import { CreateJWT } from "../../utils";
 import { ChatCredentials } from "../../main";
 import { handlerWrapper } from "../../error_handling/errorMiddlewear";
-import { createJsxClosingElement } from "typescript";
+import { missingFieldError } from "../../error_handling/throwers";
 
 const router = express.Router()
 
@@ -110,8 +110,43 @@ const GetCredentialsWrapper = async (req:express.Request, res: express.Response)
 
 }
 
+const GetAnonCredentialsWrapper = async (req: express.Request, res: express.Response) => {
+    const { username, password, non_anon_username } = req.body
+
+    if (!username) missingFieldError("username", req, "/getcredentials/anon/:chatID")
+    if (!password) missingFieldError("password", req, "/getcredentials/anon/:chatID")
+    if (!non_anon_username) missingFieldError("non_anon_username", req, "/getcredentials/anon/:chatID")
+
+
+    const chat = await prisma.chat.findFirst({where: {
+        non_anon_username,
+        anon_username: username
+    }})
+
+    if (chat == null) {
+        throw new HTTPError("No chat with that id", {
+            HTTPErrorCode: 401,
+            endUserMessage: "No chat with that id",
+            routePath: "/chats/getcredentials/:chatID",
+            resource: req
+        })
+    }
+
+    const { id: chat_id, non_anon_id, anon_id, anon_username } = chat
+
+        const chatCredentials: ChatCredentials = {
+            chat_id,
+            non_anon_id,
+            anon_id,
+            anon_username
+        }
+    const JWT = CreateJWT(chatCredentials)
+    return res.status(200).send({JWT})
+}
+
 router.post("/create/:username", handlerWrapper(CreateChatHandler))
 router.get("/getcredentials/:chatID", auth, handlerWrapper(GetCredentialsWrapper))
+router.post("/getcredentials/anon",  handlerWrapper(GetAnonCredentialsWrapper))
 
 
 export default router
