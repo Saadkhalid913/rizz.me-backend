@@ -74,18 +74,23 @@ const CreateChatHandler = async (req: express.Request, res: express.Response) =>
 
 const GetCredentialsWrapper = async (req:express.Request, res: express.Response) => {
     const {chatID} = req.params
+
+    if (!chatID) missingFieldError("ChatID", req, "/chats/getcredentials/:chatID")
+
     const userID = req._user.id
 
+    const chat = await prisma.chat.findUnique({where: {id: chatID}})
+    if (chat == null) {
+        throw new HTTPError("No chat with that id", {
+            HTTPErrorCode: 401,
+            endUserMessage: "No chat with that id",
+            routePath: "/chats/getcredentials/:chatID",
+            resource: req
+        })
+    }
+
     try {
-        const chat = await prisma.chat.findUnique({where: {id: chatID}})
-        if (chat == null) {
-            throw new HTTPError("No chat with that id", {
-                HTTPErrorCode: 401,
-                endUserMessage: "No chat with that id",
-                routePath: "/chats/getcredentials/:chatID",
-                resource: req
-            })
-        }
+       
 
         const { id: chat_id, non_anon_id, anon_id, anon_username } = chat
 
@@ -100,6 +105,7 @@ const GetCredentialsWrapper = async (req:express.Request, res: express.Response)
         return res.status(200).send({JWT})
     }
     catch (err) {
+        console.log(err)
         throw new HTTPError("There was an error", {
             HTTPErrorCode: 504,
             endUserMessage: "There was an error",
