@@ -122,7 +122,20 @@ const GetProfileInfoHandler = async (req: express.Request, res: express.Response
     // @ts-ignore
     const { username } = req._user;
 
-    const response = await prisma.user.findUnique({where: { username }})
+    const response = await prisma.user.findUnique({
+        where: { username },
+        include: {
+            chats: {
+                select: {
+                    anon_credentials: false,
+                    non_anon_username: true,
+                    anon_username: true,
+                    id: true,
+                }
+            }
+        }
+    
+    })
 
     if (!response?.id) {
         throw new HTTPError("Could not find a user with that username", {
@@ -135,6 +148,7 @@ const GetProfileInfoHandler = async (req: express.Request, res: express.Response
 
     return res.status(200).send({
         username: response.username,
+        chats: response.chats,
         max_chat_limit: response.max_chat_limit
     })
 }

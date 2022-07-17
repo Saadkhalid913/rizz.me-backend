@@ -144,12 +144,13 @@ describe("/api/chats/create/:username", () => {
 
         await Promise.all(ChatCreationCalls)
 
-        const response = await request(server).get("/api/chats")
+        const response = await request(server).get("/api/user/me")
         .set('Content-Type', 'application/json')
         .set('auth-token', auth_token)
         
         expect(response.statusCode).toBe(200)
-        expect(response.body.length).toEqual(3)
+        expect(response.body.chats).toBeDefined()
+        expect(response.body.chats.length).toEqual(3)
 
         const delete_profile_response = await deleteProfile()
         expect(delete_profile_response.statusCode).toBe(200)

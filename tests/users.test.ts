@@ -51,6 +51,7 @@ describe("/api/user", () => {
         expect(response.statusCode).toBe(200)
         expect(response.body).toBeDefined()
         expect(response.body.username).toBeDefined()
+        expect(response.body.chats).toBeDefined()
     })
 
     it("Should delete the user's account", async () => {
