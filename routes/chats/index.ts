@@ -8,6 +8,7 @@ import { CreateJWT } from "../../utils";
 import { ChatCredentials } from "../../main";
 import { handlerWrapper } from "../../error_handling/errorMiddlewear";
 import { missingFieldError } from "../../error_handling/throwers";
+import { rateLimit } from "express-rate-limit";
 
 const router = express.Router()
 
@@ -157,8 +158,14 @@ const GetAnonCredentialsWrapper = async (req: express.Request, res: express.Resp
 }
 
 
-router.post("/create/:username", handlerWrapper(CreateChatHandler))
+const limiter = rateLimit({
+	windowMs: 60 * 60 * 1000, // 15 minutes
+	max: 10, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
 
+router.post("/create/:username", limiter, handlerWrapper(CreateChatHandler))
 router.get("/getcredentials/:chatID", auth, handlerWrapper(GetCredentialsWrapper))
 router.post("/getcredentials/anon",  handlerWrapper(GetAnonCredentialsWrapper))
 
