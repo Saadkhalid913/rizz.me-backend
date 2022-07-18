@@ -46,7 +46,9 @@ const CreateChatHandler = async (req: express.Request, res: express.Response) =>
             anon_username,
             non_anon_id: user.id,
             anon_id: NewChat.anon_id,
-            chat_id: NewChat.id
+            chat_id: NewChat.id,
+            sender: anon_username,
+            recipient: NewChat.non_anon_username
         }
 
         const JWT = CreateJWT(chatCredentials)
@@ -56,7 +58,7 @@ const CreateChatHandler = async (req: express.Request, res: express.Response) =>
                 username: anon_username,
                 password: anon_password,
                 JWT,
-                chat_id: (process.env.NODE_ENV == "test") ? NewChat.id : undefined
+                chat_id: (process.env.NODE_ENV == "test") ? NewChat.id : undefined,
             }
         })
     }
@@ -92,13 +94,15 @@ const GetCredentialsWrapper = async (req:express.Request, res: express.Response)
     try {
        
 
-        const { id: chat_id, non_anon_id, anon_id, anon_username } = chat
+        const { id: chat_id, non_anon_id, anon_id, anon_username, non_anon_username } = chat
 
         const chatCredentials: ChatCredentials = {
             chat_id,
             non_anon_id,
             anon_id,
-            anon_username
+            anon_username,
+            sender: non_anon_username,
+            recipient: anon_username
         }
 
         const JWT = CreateJWT(chatCredentials)
@@ -144,7 +148,9 @@ const GetAnonCredentialsWrapper = async (req: express.Request, res: express.Resp
             chat_id,
             non_anon_id,
             anon_id,
-            anon_username
+            anon_username,
+            sender: anon_username,
+            recipient: non_anon_username
         }
     const JWT = CreateJWT(chatCredentials)
     return res.status(200).send({JWT})

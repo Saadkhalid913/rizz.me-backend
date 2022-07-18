@@ -12,6 +12,19 @@ interface Chat {
 }
 
 
+async function SaveSentChat(Chat: string, ChatCredentials: ChatCredentials) {
+    const { sender, recipient, chat_id } = ChatCredentials
+    const chat_response = await prisma.chatMessage.create({
+        data: {
+            text: Chat,
+            sender,
+            recipient,
+            conversation_id: chat_id
+        }
+    })
+    return chat_response
+}
+
 export default function SocketIOinit(app: Express) {        
 
     const server = http.createServer(app);
@@ -21,22 +34,30 @@ export default function SocketIOinit(app: Express) {
       }})
 
     io.on('connection', (socket) => {
-        console.log("Connected...")
-        socket.on("test-event" , (...args) => {
-            console.log("This is the test event")
-            console.log(args)
-        })
 
-        socket.on("chat-sent", (chat: Chat) => {
-            const {JWT, data} = chat            
+        socket.on("join-chat", (JWT: string) => {
             try {
                 const payload = jwt.verify(JWT, process.env.key!) as ChatCredentials
-                console.log(payload, data)
+                const {chat_id} = payload
+                socket.join(chat_id)
             }
             catch(err) {
                 console.log(err)
             }
         })
+
+        socket.on("chat-sent", async (chat: Chat) => {
+            const {JWT, data} = chat            
+            try {
+                const payload = jwt.verify(JWT, process.env.key!) as ChatCredentials
+                const chat_response = await SaveSentChat(data, payload)
+                io.to(payload.chat_id).emit("chat-recieved", (chat_response))
+            }
+            catch(err) {
+                console.log(err)
+            }
+        })
+        
     });
 
     return server 

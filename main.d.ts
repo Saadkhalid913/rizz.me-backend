@@ -14,4 +14,7 @@ export type ChatCredentials = {
     anon_id: string,
     chat_id: string
     non_anon_id: string,
+    sender: string,
+    recipient: string
 }
+
