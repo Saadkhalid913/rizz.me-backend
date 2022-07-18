@@ -12,11 +12,14 @@ const app = express()
 
 ConfigInit()
 addMiddlewear(app)
-addRoutes(app)
+if (process.env.NODE_ENV == "production") {
+    app.get("/" , (req,res) => res.send("Nothing to see here!"))
+}
+else addRoutes(app)
+
 app.use(errorMiddlewear)
 
 
-app.get("/" , (req,res) => res.send("Hello world!"))
 
 
 const PORT = process.env.PORT || 3000;
