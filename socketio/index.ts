@@ -35,11 +35,22 @@ export default function SocketIOinit(app: Express) {
 
     io.on('connection', (socket) => {
 
-        socket.on("join-chat", (JWT: string) => {
+        socket.on("join-chat", async (JWT: string) => {
             try {
                 const payload = jwt.verify(JWT, process.env.key!) as ChatCredentials
                 const {chat_id} = payload
                 socket.join(chat_id)
+                
+                const ExistingChats = await prisma.chatMessage.findMany({
+                    where: {
+                        conversation_id: chat_id,
+                    },
+                    orderBy: {
+                        timestamp: "asc"
+                    }
+                })
+
+                io.to(socket.id).emit("chat-joined", ExistingChats)
             }
             catch(err) {
                 console.log(err)
@@ -48,6 +59,7 @@ export default function SocketIOinit(app: Express) {
 
         socket.on("chat-sent", async (chat: Chat) => {
             const {JWT, data} = chat            
+            if (data == "") return
             try {
                 const payload = jwt.verify(JWT, process.env.key!) as ChatCredentials
                 const chat_response = await SaveSentChat(data, payload)

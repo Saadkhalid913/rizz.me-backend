@@ -153,7 +153,7 @@ const GetAnonCredentialsWrapper = async (req: express.Request, res: express.Resp
             recipient: non_anon_username
         }
     const JWT = CreateJWT(chatCredentials)
-    return res.status(200).send({JWT})
+    return res.status(200).send({JWT, username, password})
 }
 
 
