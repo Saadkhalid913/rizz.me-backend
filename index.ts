@@ -13,7 +13,8 @@ const app = express()
 ConfigInit()
 addMiddlewear(app)
 if (process.env.NODE_ENV == "production") {
-    app.get("/" , (req,res) => res.send("Nothing to see here!"))
+    // app.get("/" , (req,res) => res.send("Nothing to see here!"))
+    addRoutes(app)
 }
 else addRoutes(app)
 
