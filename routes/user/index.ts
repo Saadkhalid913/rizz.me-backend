@@ -131,10 +131,15 @@ const GetProfileInfoHandler = async (req: express.Request, res: express.Response
                     non_anon_username: true,
                     anon_username: true,
                     id: true,
+                    messages: { 
+                        take: 1,
+                        orderBy: {
+                            timestamp: "desc"
+                        }
+                    }
                 }
             }
         }
-    
     })
 
     if (!response?.id) {
