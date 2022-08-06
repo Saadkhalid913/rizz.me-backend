@@ -70,9 +70,9 @@ export default function SocketIOinit(app: Express) {
             }
         })
 
-        socket.on('disconnect', function (...args) {
-            console.log("Disconnected \n", args)
-        });
+        // socket.on('disconnect', function (...args) {
+
+        // });
       
         
     });
