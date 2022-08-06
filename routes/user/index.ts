@@ -159,11 +159,16 @@ const GetProfileInfoHandler = async (req: express.Request, res: express.Response
 }
 
 
-
+const LogoutHandler = async (req: express.Request, res: express.Response) => {
+    // @ts-ignore
+    req.session?.destroy() 
+    res.send({message: "Logged out successfully"})
+}
 
 router.post("/", handlerWrapper(SignupHandler))
 router.post("/login", handlerWrapper(LoginHandler))
 router.delete("/", handlerWrapper(DeleteProfileHandler))
 router.get("/me", auth, handlerWrapper(GetProfileInfoHandler))
+router.get("/logout", auth, handlerWrapper(LogoutHandler))
 
 export default router 
