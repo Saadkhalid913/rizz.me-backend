@@ -103,10 +103,21 @@ const articleSummaryHandler = async (req: express.Request,res: express.Response)
         })
 
       }
-      const articleText = await ScrapeMediumPage(articleLink)
-      let summary = await SummarizeText(articleText)
-      summary = summary?.trim()
-      res.status(200).send({ summary })
+      try {
+        const articleText = await ScrapeMediumPage(articleLink)
+        let summary = await SummarizeText(articleText)
+        summary = summary?.trim()
+        res.status(200).send({ summary })
+      }
+      catch(err) {
+        console.log(err)
+        throw new HTTPError("unknown error", {
+            HTTPErrorCode: 400,
+            endUserMessage: "unknown error",
+            resource: err,
+            routePath: "/api/articles"
+        })
+      }
   }
 
 router.post("/", handlerWrapper(articleSummaryHandler))
