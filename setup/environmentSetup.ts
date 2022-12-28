@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 
 const ConfigInit = () => {
     const dev_env = (process.env.TS_NODE_DEV) ? "development" : "production"
-    dotenv.config({path: `.env.${dev_env}`})
+    dotenv.config({path: `.env.${dev_env}`})    
     CheckAllVars()
 }
 
