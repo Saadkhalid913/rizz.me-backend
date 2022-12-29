@@ -31,6 +31,33 @@ describe("/api/user", () => {
         expect(response.body).toBeDefined()
     })
 
+    it("Should throw an http error", async () => {
+        const response = await request(server).post("/api/user")
+            .set('Content-Type', 'application/json')
+            .send({ username: "", password: "23131289heiu12he9821h"})
+        
+        expect(response.status == 400)
+        expect(response.body.error).toBeDefined()
+    })
+
+    it("Should throw an http error", async () => {
+        const response = await request(server).post("/api/user")
+            .set('Content-Type', 'application/json')
+            .send({ username: "dwadawdawd", password: ""})
+        
+        expect(response.status == 400)
+        expect(response.body.error).toBeDefined()
+    })
+
+    it("Should throw an http error", async () => {
+        const response = await request(server).post("/api/user")
+            .set('Content-Type', 'application/json')
+            .send({ username: "", password: ""})
+        
+        expect(response.status == 400)
+        expect(response.body.error).toBeDefined()
+    })
+
     it("Should log in the user", async () => {
         const response = await request(server).post("/api/user/login")
                 .set('Content-Type', 'application/json')

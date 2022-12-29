@@ -8,10 +8,12 @@ const ConfigInit = () => {
 
 
 function CheckAllVars() {
+
     const EnvrionmentVariables = [
         "key",
         "cookie_domain",
-        "client_origin"
+        "client_origin",
+        "NODE_ENV"
     ]
 
     for (let variable of EnvrionmentVariables) {

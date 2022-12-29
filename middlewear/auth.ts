@@ -1,6 +1,7 @@
 import { User } from "@prisma/client"
 import express from "express"
 import * as jwt from "jsonwebtoken"
+
 export default async function(req: express.Request,res: express.Response, next: express.NextFunction) {
     let JWT: string | undefined;
 

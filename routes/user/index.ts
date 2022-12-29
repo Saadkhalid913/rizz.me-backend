@@ -62,6 +62,7 @@ const LoginHandler = async (req: express.Request,res: express.Response) => {
     const valid = await bcrypt.compare(password, user.password)
     if (valid) {
         const JWT = CreateJWT(user)
+        
         // @ts-ignore 
         req.session.auth = JWT 
         if (IsTesting()) res.set("auth-token", JWT)
