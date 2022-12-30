@@ -29,6 +29,7 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "openai": "^3.1.0",
+    "prisma": "^4.6.1",
     "puppeteer": "^19.4.1",
     "socket.io": "^4.5.1",
     "supertest": "^6.2.4",
